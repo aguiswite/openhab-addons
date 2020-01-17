@@ -15,6 +15,8 @@ package org.openhab.binding.lutron.internal.handler;
 import static org.openhab.binding.lutron.internal.LutronBindingConstants.CHANNEL_LIGHTLEVEL;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -23,7 +25,9 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerService;
 import org.eclipse.smarthome.core.types.Command;
+import org.openhab.binding.lutron.action.DimmerActions;
 import org.openhab.binding.lutron.internal.config.DimmerConfig;
 import org.openhab.binding.lutron.internal.protocol.LutronCommandType;
 import org.slf4j.Logger;
@@ -44,6 +48,11 @@ public class DimmerHandler extends LutronHandler {
 
     public DimmerHandler(Thing thing) {
         super(thing);
+    }
+
+    @Override
+    public Collection<Class<? extends ThingHandlerService>> getServices() {
+        return Collections.singletonList(DimmerActions.class);
     }
 
     @Override
@@ -91,7 +100,11 @@ public class DimmerHandler extends LutronHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        if (channelUID.getId().equals(CHANNEL_LIGHTLEVEL)) {
+        handleCommand(channelUID.getId(), command, 0, 0);
+    }
+
+    public void handleCommand(String channelID, Command command, int fadeTime, int delayTime) {
+        if (channelID.equals(CHANNEL_LIGHTLEVEL)) {
             if (command instanceof Number) {
                 int level = ((Number) command).intValue();
 
